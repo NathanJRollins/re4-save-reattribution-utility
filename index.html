@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>RE4 Save File Reattribution Utility</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="description" content="RE4 Save File Reattribution Utility">
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<div>
+			<span>Please back up all of your save data elsewhere before using this utility.</span>
+			<br>
+			<span>Don't give me your only copy of anything.</span>
+			<br>
+			
+			<br>
+	
+			<span id='instruction-text'></span>
+			<br>
+			<input type="file" id="file-input">
+			<button type="button" id="download-button" onclick="downloadResult()">Download</button> 
+			
+			<br>
+	
+			<span>Game's save file is typically stored here:</span>
+			<br>
+			<code>"C:\Program Files (x86)\Steam\userdata\[STEAM_USER_ID]\254700\remote\"</code>
+		</div>
+
+		<script src="script.js"></script>
+	</body>
+</html>

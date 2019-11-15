@@ -1,0 +1,29 @@
+html,body {
+	height: 100%;
+	overflow: hidden;
+	background-color: black;
+	color: white;
+}
+
+body {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+}
+
+body>div {
+	max-width: 80%;
+}
+
+#file-input,#download-button {
+	margin: auto;
+}
+
+#instruction-text {
+	font-size: 1.5vw;
+}
+
+#file-input, span {
+	font-size: 1vw;
+}
