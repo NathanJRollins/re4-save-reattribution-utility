@@ -27,3 +27,7 @@ body>div {
 #file-input, span {
 	font-size: 1vw;
 }
+
+#path-id {
+	font-size: inherit;
+}

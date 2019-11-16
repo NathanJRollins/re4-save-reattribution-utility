@@ -1,9 +1,25 @@
+'use strict'
 // todo:
-// 	allow arbitrary ID input (find how save file ID is determined - doesn't look like hash of Steam ID)
+// 	allow arbitrary ID input (need to decipher second value used in this program to do so)
+// 	remove program statefulness
 
+// steam user's ID3, or "account number"
+// https://developer.valvesoftware.com/wiki/SteamID
+// https://steamid.io/
+// (watch the endian-ness)
 var firstFileID = null;
+// what this value is is unknown, and it's why user can't just enter their ID to tailor a file...
+var firstFileIDLikeObject = null;
+
+// This is how the program works.  User uploads file with their IDs, we save them, user
+//   uploads file they wish to use, and we replace file 2's two 4-byte "id"s in both locations
+//   which require it, allowing user to use save file 2 given the credentials which created
+//   save file 1.
+
+// bytes in final-download user-tailored save file
 var downloadFile = null;
 // Program state:
+// (we're stateful because we're complex & fragile enough atm WITHOUT closure scopes)
 // 0 = awaiting file one (user's own fresh save file)
 // 1 = awaiting file two (file which user would like to use, but which has incorrect ID)
 // 2 = offering download of modified file to user
@@ -30,10 +46,18 @@ function handleFile() {
 			// get user ID from file
 			reader.onload = function () {
 				var result = reader.result;
-				var idSlice = result.slice(result.byteLength-8);
-				idSlice = idSlice.slice(0,4);
-				// firstFileIDInt = new Int32Array(idSlice);
-				firstFileID = idSlice;
+
+				// retrieve user's id
+				firstFileID = result.slice(7744, 7748); // 4 bytes @ 0x1e40
+				// update path shown in UI given this ID
+				var userID =  new Int32Array(firstFileID);
+				document.getElementById("path-id").innerText = userID;
+
+
+				// retrieve user's... other... id?  idk what it is, but we need it.
+				firstFileIDLikeObject = result.slice(result.byteLength-8, result.byteLength-4);
+				// console.log(new Int32Array(firstFileIDLikeObject));
+
 				// advance program state
 				state = 1;
 				reflectNewProgramState();
@@ -47,7 +71,7 @@ function handleFile() {
 			// replace ID with retrieved ID from first file
 			reader.onload = function () {
 				var thisSaveFile = reader.result;
-				downloadFile = replaceSaveFileID(thisSaveFile, firstFileID);
+				downloadFile = replaceSaveFileIDs(thisSaveFile);
 				// advance program state
 				state = 2;
 				reflectNewProgramState();
@@ -62,25 +86,41 @@ function handleFile() {
 }
 
 // returns saveFile with newID spliced in over the old one
-function replaceSaveFileID(saveFile, newID) {
-	// get data fragment leading up to user ID
-	var fragmentA = saveFile.slice(0, saveFile.byteLength-8)
-	// get data fragment for user ID
-	var fragmentB = firstFileID;
-	if (fragmentB === null) {
+function replaceSaveFileIDs(saveFile) {
+	// ensure fragments have already been retrieved
+	if ((firstFileID === null) || (firstFileIDLikeObject === null)) {
 		alert('ID not detected when it should be...\nThis is an error.\nSorry about that.\nResetting...');
 		return startOver();
 	}
-	// get data fragment following user ID (is it ever not 00 00 00 00?)
-	var fragmentC = saveFile.slice(saveFile.byteLength-4)
 
-	// combine all fragments into final result and return it
-	var saveFileWithIDReplaced = _appendBuffer(_appendBuffer(fragmentA,fragmentB),fragmentC);
-	return saveFileWithIDReplaced;
+	// ~~~ first splice (of user's ID) ~~~
+	// fragment leading up to ID location
+	var fragmentA = saveFile.slice(0, 7744)
+	// user ID
+	var fragmentB = firstFileID;
+	// rest of file following user ID
+	var fragmentC = saveFile.slice(7748)
+	// combine fragments into result
+	var modifiedSaveFile = _appendBuffer(_appendBuffer(fragmentA,fragmentB),fragmentC);
+
+	// ~~~ second splice (of user's other unique identifier near EOF) ~~~
+	// fragment leading up to identifier location
+	fragmentA = modifiedSaveFile.slice(0, modifiedSaveFile.byteLength-8)
+	// identifier
+	fragmentB = firstFileIDLikeObject;
+	// rest of file following user identifier (is it ever not 00 00 00 00?)
+	fragmentC = modifiedSaveFile.slice(modifiedSaveFile.byteLength-4)
+	// combine fragments into result
+	modifiedSaveFile = _appendBuffer(_appendBuffer(fragmentA,fragmentB),fragmentC);
+
+	return modifiedSaveFile;
 }
 
 // restart program
 function startOver() {
+	firstFileID = null;
+	firstFileIDLikeObject = null;
+	downloadFile = null;
 	state = 0;
 	reflectNewProgramState();
 }
