@@ -195,3 +195,23 @@ function saveByteArray(reportName, byte) {
 	link.download = fileName;
 	link.click();
 };
+
+// register listener for more info button
+document.getElementById("more-info-button").addEventListener("click", function () {
+	var msg = "";
+	msg += "You may need to disable the Steam cloud if you encounter issues.";
+	msg += "\n";
+	msg += "\n";
+	msg += "The game might tell you that there's no save file.";
+	msg += "  Just agree, let it make a new one, then replace that new one with the one this program gave you (again).";
+	msg += "\n";
+	msg += "\n";
+	msg += "Never let the game try to load your last copy of any file.";
+	msg += "  The game will permanently delete savegame00.sav if anything goes wrong";
+	msg += " - be sure to always keep backups & we'll be okay.";
+	msg += "\n";
+	msg += "\n";
+	msg += "If you see anything that needs fixing or you have an idea for how to improve this tool,";
+	msg += " collaboration is welcome!  There's a link to the source in the corner.";
+	alert(msg);
+});

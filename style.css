@@ -31,3 +31,7 @@ body>div {
 #path-id {
 	font-size: inherit;
 }
+
+#more-info-button {
+	cursor: help;
+}
