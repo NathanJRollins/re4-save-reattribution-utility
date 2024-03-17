@@ -4,6 +4,7 @@
 Converts save game files for Resident Evil 4 (Steam's HD version), allowing users to load save files originally created under different account credentials
 
 ## Use it [here](https://nathanjrollins.github.io/re4-save-reattribution-utility/)!
+## Guide [here](https://steamcommunity.com/sharedfiles/filedetails/?id=2284646819)!
 
 
 This utility works by overwriting 4 bytes from 2 locations (8 bytes total) in the desired save file with bytes taken from one of a user's own save files.  Not all nonzero bytes from a fresh save are needed (it seems we were probably overwriting things that mattered when we copied them all over - oops).
